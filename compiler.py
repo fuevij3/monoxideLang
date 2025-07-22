@@ -161,7 +161,7 @@ def compiler(code):
                             print("nothing_to_pop::error03")
             elif args[1] == "peek":
                 args1 = i.split("::")
-                arr = args[1]
+                arr = args1[1]
                 for i in mem:
                     if i["type"] == "stack" and i["name"] == arr:
                         if len(i["value"]) != 0:
@@ -170,23 +170,132 @@ def compiler(code):
 
         elif i.startswith("file"):
             args = i.split(".")
+
             if args[1] == "new":
                 args1 = i.split("::")
-                with open(args1[1], "w") as file:
-                    file.write(args1[2])
+                try:
+                    with open(args1[1], "w") as file:
+                        file.write(args1[2])
+                except Exception as e:
+                    print(f"file_write_error::error05::{e}")
 
             elif args[1] == "read":
                 args1 = i.split("::")
-                mem_size = sum(len(str(b)) for b in mem)
-                with open(args1[1], "r") as file:
-                    block = file.read(args1[2])
-                    if mem_size + len(block) < allocated:
-                        mem.append(block)
-                    else:
-                        print("mem_overflow::error01")
-
+                try:
+                    with open(args1[1], "r") as file:
+                        block = file.read()
+                        mem_size = sum(len(str(b)) for b in mem)
+                        if mem_size + len(block) < allocated:
+                            mem.append(block)
+                        else:
+                            print("mem_overflow::error01")
+                except FileNotFoundError:
+                    print("file_not_found::error06")
+                except Exception as e:
+                    print(f"file_read_error::error07::{e}")
 
             elif args[1] == "append":
                 args1 = i.split("::")
-                with open(args1[1], "a") as file:
-                    file.write(args1[2])
+                try:
+                    with open(args1[1], "a") as file:
+                        file.write(args1[2])
+                except Exception as e:
+                    print(f"file_append_error::error08::{e}")
+
+        # just a modified stack
+        elif i.startswith("queue"):
+            args = i.split(".")
+            if args[1] == "new":
+                name = i.split("::")
+                info = {
+                    "type": "queue",
+                    "name": name[1],
+                    "value": []
+                }
+                mem.append(info)
+            elif args[1] == "insert":
+                args1 = i.split("::")
+
+                arr = args1[1]
+                value = args[2]
+
+                for i in mem:
+                    if i["type"] == "queue" and i["name"] == arr:
+                        i["value"].insert(0, value)
+            elif args[1] == "pop":
+                args1 = i.split("::")
+
+                arr = args1[1]
+
+                for i in mem:
+                    if i["type"] == "queue" and i["name"] == arr:
+                        if len(i["value"]) != 0:
+                            i["value"].pop(0)
+                        else:
+                            print("nothing_to_pop::error03")
+            elif args[1] == "peek":
+                args1 = i.split("::")
+                arr = args1[1]
+                for i in mem:
+                    if i["type"] == "queue" and i["name"] == arr:
+                        if len(i["value"]) != 0:
+                            stack = i["value"]
+                            mem.append(stack[0])
+
+        elif i.startswith("arr"):
+            args = i.split(".")
+            if args[1] == "new":
+                args1 = i.split("::")
+                info = {
+                    "type": "arr",
+                    "name": args1[1],
+                    "value": []
+                }
+                mem.append(info)
+
+            elif args[1] == "insert":
+                args1 = i.split("::")
+                arr = args1[1]
+                value = args1[2]
+                index = args1[3]
+
+                for i in mem:
+                    if i["type"] == "arr" and i["name"] == arr:
+                        i["value"].insert(index, value)
+                    else:
+                        pass
+
+            elif args[1] == "append":
+                args1 = i.split("::")
+                arr = args1[1]
+                value = args1[2]
+
+                for i in mem:
+                    if i["type"] == "arr" and i["name"] == arr:
+                        i["value"].append(value)
+                    else:
+                        pass
+
+            elif args[1] == "pop":
+                args1 = i.split("::")
+                arr = args1[1]
+                index = args1[2]
+
+                for i in mem:
+                    if i["type"] == "arr" and i["name"] == arr:
+                        i["value"].pop(index)
+                    else:
+                        pass
+
+
+            elif args[1] == "peek":
+                args1 = i.split("::")
+                arr = args1[1]
+                index = args1[2]
+
+                for i in mem:
+                    if i["type"] == "arr" and i["name"] == arr:
+                        mem.append(i["value"][index])
+                    else:
+                        pass
+
